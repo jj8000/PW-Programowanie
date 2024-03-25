@@ -1,4 +1,4 @@
----
+-- -
 title: "Zadania R"
 output: html_document
 ---
@@ -32,7 +32,7 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 Przyjęto wartości:
 ```{r}
-K = 36000
+K = 40000
 r = 0.06
 n = 36
 ```
@@ -57,23 +57,45 @@ print(F)
 
 Przyjęto wartości jak w zadaniu 1:
 ```{r}
-K = 36000
+K = 40000
 r = 0.06
 n = 36
 ```
 
 Wyznaczenie części kapitałowej raty:
 ```{r}
-R0 = K / n
+R0 = round((K / n), 2)
 print(R0)
 ```
 Wyznaczenie części odsetkowej raty i-tej:
 ```{r}
+# zdefiniowano funkcję liczącą wysokość części odsetkowej:
 
+R1_i = function(kwota, rso, okres, nr) {
+  ((kwota - (nr - 1) * (kwota / okres)) * rso) / 12
+}
+
+# Wyznaczenie wektora z wynikami:
+
+R1 = sapply(seq(1:n), R1_i, kwota = K, rso = r, okres = n)
+print(round(R1, 2))
 ```
+Wyznaczenie wysokości raty i-tej:
 
+```{r}
+# W celu uzyskania wyniku dodano stałą wartość R0 do każdego elementu wektora R1:
 
+R_i = round(R1 + rep(R0, length(R1)), 2)
+print(R_i)
+```
+Wyznaczenie wysokości raty i-tej:
+  
+```{r}
+# W celu uzyskania wyniku dodano stałą wartość R0 do każdego elementu wektora R1:
 
+raty_calkowite = round(R1 + rep(R0, length(R1)), 2)
+print(raty_calkowite)
+```
 
 
 
