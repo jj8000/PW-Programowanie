@@ -96,9 +96,114 @@ Wyznaczenie wysokości raty i-tej:
 raty_calkowite = round(R1 + rep(R0, length(R1)), 2)
 print(raty_calkowite)
 ```
+Całkowita kwota do spłaty: `r sum(raty_calkowite)`
+Najniższa wartość raty: `r min(raty_calkowite)`
+Najwyższa wartość raty: `r max(raty_calkowite)`
+Średnia wysokość raty: `r mean(raty_calkowite)`
 
+# Zadanie 3
 
+Wczytanie danych:
 
+```{r}
+dane_wig = readRDS("wig_changes.rds")
+```
+
+W celu zliczenia wystąpień poszczególnych par wyników zdefiniowano pętlę oraz wprowadzono \
+licznik dla każdego przypadku
+
+```{r}
+pp = 0 # "++"
+pm = 0 # "+-"
+mp = 0 # "-+"
+mm = 0 # "--"
+
+for (i in 2:length(dane_wig)) {
+  value = dane_wig[i]
+  prev_value = dane_wig[i - 1]
+  
+  if (prev_value == "+" && value == "+") {pp <- pp + 1}
+  else if (prev_value == "+" && value == "-") {pm <- pm + 1}
+  else if (prev_value == "-" && value == "+") {mp <- mp + 1}
+  else if (prev_value == "-" && value == "-") {mm <- mm + 1}
+}
+```
+
+Stworzenie macierzy z wynikami:
+
+```{r}
+wig_matrix = matrix(c(pp, pm, mp, mm), nrow = 2, ncol = 2, byrow = T,
+                    dimnames = list(c("poprz. +", "poprz. -"), c("nast. +", "nast. -")))
+```
+
+Podniesienie macierzy do trzeciej potęgi:
+
+```{r}
+wig_matrix3 = wig_matrix %*% wig_matrix %*% wig_matrix
+dimnames(wig_matrix3) = c(NULL, NULL)
+print(wig_matrix3)
+```
+
+# Zadanie 4
+
+# Zadanie 5
+
+Wczytanie danych:
+```{r}
+dane_wiek = readRDS("age.rds")
+```
+
+Uwaga - w poniższych odpowiedziach w zależności od konkretnego pytania ignorowano lub nie \
+wartości nieznane (NA).
+
+Wiek klienta najmłodszego:
+```{r}
+print(min(dane_wiek, na.rm = T))
+```
+Wiek klienta najstarszego:
+```{r}
+print(max(dane_wiek, na.rm = T))
+```
+Przeciętny wiek klienta:
+```{r}
+print(round(mean(dane_wiek, na.rm = T)))
+```
+Zróżnicowanie wieku zilustrowano histogramem:
+```{r}
+hist(dane_wiek, breaks = seq(min(dane_wiek, na.rm = T), max(dane_wiek, na.rm = T), 1),
+     col = 'coral', main = "Histogram wieku klientów", xlab = "Wiek", ylab = "Liczba klientów", 
+     las = 1)
+grid()
+```
+Ilość oraz odsetek klientów niepełnoletnich:
+```{r}
+paste0("Liczba klientów niepełnoletnich: ", sum(dane_wiek < 18, na.rm = T))
+paste0("Odsetek klientów niepełnoletnich: ", sum(dane_wiek < 18, na.rm = T) * 100 / length(dane_wiek), " %")
+```
+
+Ilość oraz odsetek klientów w wieku 30 - 50 lat:
+```{r}
+paste0("Liczba klientów 30-50: ", sum(dane_wiek >= 30 & dane_wiek <= 50, na.rm = T))
+paste0("Odsetek klientów 30-50: ", sum(dane_wiek >= 30 & dane_wiek <= 50, na.rm = T) * 100 / length(dane_wiek), " %")
+```
+Ilość oraz odsetek klientów bez podanego wieku:
+```{r}
+paste0("Liczba klientów o nieznanym wieku: ", sum(is.na(dane_wiek)))
+paste0("Odsetek klientów o nieznanym wieku: ", sum(is.na(dane_wiek)) * 100 / length(dane_wiek), " %")
+```
+Podział klientów na segmenty wiekowe [16,17], [18,24], [25,34], [35,44], [45,64], [65+]:
+```{r}
+# Przedziały domyślnie są lewostronnie otwarte
+age_factor = cut(dane_wiek, breaks = c(15, 17, 24, 34, 44, 64, Inf))
+```
+
+Dane dotyczące ilości bezwzględnych i procentowych w poszczególnych przedziałąch umieszczono \
+w ramce danych:
+
+```{r}
+df_age_bins = data.frame(Ilość = summary(age_factor), Odsetek_proc. = summary(age_factor) * 100 / sum(df_age_bins$Ilość))
+print(df_age_bins)
+```
 
 
 
