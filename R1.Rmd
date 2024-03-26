@@ -175,6 +175,22 @@ hist(dane_wiek, breaks = seq(min(dane_wiek, na.rm = T), max(dane_wiek, na.rm = T
      las = 1)
 grid()
 ```
+Kształt histogramu sugeruje, że wiek klientów może być zbliżony do rozkładu normalnego. \
+W celach porównawczych poniżej wykreślono histogram ponownie, tym razem z polami słupków\
+odpowiadającymi prawdopodobieństwu, że wiek klienta równy jest wartości na osi x.\
+Na tym samym wykresie zaznaczono krzywą teoretyczną funkcji gęstości prawdopodobieństwa dla\
+parametrów $\mu, \sigma$ obliczonym na podstawie danych.
+
+```{r}
+hist(dane_wiek, prob = T, breaks = seq(min(dane_wiek, na.rm = T), max(dane_wiek, na.rm = T), 1),
+     col = 'darkorange', main = "Gęstość prawd. wieku klientów", xlab = "Wiek", ylab = "Gęstość prawdopodobieństwa", 
+     las = 1)
+grid()
+lines(dnorm(seq(16:90), mean(dane_wiek, na.rm = T), sd(dane_wiek, na.rm = T)), col = 'deepskyblue3',
+      lwd = 2)
+legend('topright', 'w. teoretyczna', col = 'deepskyblue3', lwd = 2)
+```
+
 Ilość oraz odsetek klientów niepełnoletnich:
 ```{r}
 paste0("Liczba klientów niepełnoletnich: ", sum(dane_wiek < 18, na.rm = T))
@@ -202,11 +218,46 @@ w ramce danych:
 
 ```{r}
 df_age_bins = data.frame(Ilość = summary(age_factor), Odsetek_proc. = summary(age_factor) * 100 / sum(df_age_bins$Ilość))
+row.names(df_age_bins) = c("[16,17]", "[18,24]", "[25,34]", "[35,44]", "[45,64]", "[65+]", "NA")
 print(df_age_bins)
 ```
 
+# Zadanie 6
 
+Wykonanie zadanego kodu:
+```{r}
+c(4.17,5.58,5.18,6.11,4.50,4.61,5.17,4.53,5.33,5.14) -> ctl
+c(4.81,4.17,4.41,3.59,5.87,3.83,6.03,4.89,4.32,4.69) -> trt
+gl(2, 10, 20, labels = c("Ctl","Trt")) -> group
+c(ctl, trt) -> weight
+summary(lm(weight ~ group)) -> model
+```
 
+Współczynniki modelu: 
+```{r}
+model$coefficients
+```
+Wartości resztowe modelu: 
+```{r}
+model$residuals
+```
+Wartość dopasowanego $R^2$:
+```{r}
+model$adj.r.squared
+```
+# Zadanie 7
 
+Wczytanie danych do ramki danych, oraz przerobienie wg podanej specyfikacji:
+```{r}
+df_diamonds = read.csv('ugly_diamonds.csv', sep = "%", skip = 4)
+type.convert(df_diamonds, na.strings = "Brak Danych", dec = ",", as.is = F) -> df_diamonds
+str(df_diamonds)
+```
+# Zadanie 8
 
-
+Wczytanie danych do ramki danych, oraz przerobienie wg podanej specyfikacji:
+```{r}
+df_diamonds = read.csv('ugly_diamonds.csv', sep = "%", skip = 4)
+type.convert(df_diamonds, na.strings = "Brak Danych", dec = ",", as.is = F) -> df_diamonds
+str(df_diamonds)
+```
