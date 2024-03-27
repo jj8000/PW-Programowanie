@@ -213,11 +213,12 @@ Podział klientów na segmenty wiekowe [16,17], [18,24], [25,34], [35,44], [45,6
 age_factor = cut(dane_wiek, breaks = c(15, 17, 24, 34, 44, 64, Inf))
 ```
 
-Dane dotyczące ilości bezwzględnych i procentowych w poszczególnych przedziałąch umieszczono \
+Dane dotyczące ilości bezwzględnych i procentowych w poszczególnych przedziałach umieszczono \
 w ramce danych:
 
 ```{r}
-df_age_bins = data.frame(Ilość = summary(age_factor), Odsetek_proc. = summary(age_factor) * 100 / sum(df_age_bins$Ilość))
+df_age_bins = data.frame(Ilość = summary(age_factor), Odsetek_proc. = summary(age_factor) * 100 / 
+                           length(dane_wiek))
 row.names(df_age_bins) = c("[16,17]", "[18,24]", "[25,34]", "[35,44]", "[45,64]", "[65+]", "NA")
 print(df_age_bins)
 ```
@@ -255,9 +256,26 @@ str(df_diamonds)
 ```
 # Zadanie 8
 
-Wczytanie danych do ramki danych, oraz przerobienie wg podanej specyfikacji:
+Wczytanie danych do ramki danych:
 ```{r}
-df_diamonds = read.csv('ugly_diamonds.csv', sep = "%", skip = 4)
-type.convert(df_diamonds, na.strings = "Brak Danych", dec = ",", as.is = F) -> df_diamonds
-str(df_diamonds)
+df_bank = readRDS("bank_register.rds")
 ```
+
+Przekształcenia danych:
+```{r}
+#Zmiana formatu daty
+df_bank$date = as.Date(df_bank$date, format = "%b %d, %Y")
+#Zmiany w kolumnie "Income"
+df_bank$income <- sub(".", "", df_bank$income, fixed = TRUE)
+df_bank$income <- sub(",", ".", df_bank$income, fixed = TRUE)
+df_bank$income <- sub("$", "", df_bank$income, fixed = TRUE)
+
+# Rozbicie pierwszej kolumny na listę wektorów dwuelementowych:
+id_split = strsplit(df_bank$id, "_", fixed = TRUE)
+# Z otrzymanej listy należy "wyciągnąć" pierwsze i drugie elementy wektorów:
+client_id = sapply(id_split, function(x) x[1])
+agreement_id = sapply(id_split, function(x) x[2])
+```
+
+
+
