@@ -263,9 +263,9 @@ df_bank = readRDS("bank_register.rds")
 
 Przekształcenia danych:
 ```{r}
-#Zmiana formatu daty
+# Zmiana formatu daty
 df_bank$date = as.Date(df_bank$date, format = "%b %d, %Y")
-#Zmiany w kolumnie "Income"
+# Zmiany w kolumnie "income"
 df_bank$income <- sub(".", "", df_bank$income, fixed = TRUE)
 df_bank$income <- sub(",", ".", df_bank$income, fixed = TRUE)
 df_bank$income <- sub("$", "", df_bank$income, fixed = TRUE)
@@ -275,6 +275,17 @@ id_split = strsplit(df_bank$id, "_", fixed = TRUE)
 # Z otrzymanej listy należy "wyciągnąć" pierwsze i drugie elementy wektorów:
 client_id = sapply(id_split, function(x) x[1])
 agreement_id = sapply(id_split, function(x) x[2])
+# Analogicznie dla kolumny "demographic"
+dem_split = strsplit(df_bank$demographic, ",", fixed = TRUE)
+sex = sapply(dem_split, function(x) x[1])
+age = sapply(dem_split, function(x) x[2])
+child = sapply(dem_split, function(x) x[3])
+# Utworzenie wektorów na podstawie kolumny "products"
+dep = grepl("dep", df_bank$products, ignore.case = TRUE)
+cre = grepl("cre", df_bank$products, ignore.case = TRUE)
+mor = grepl("mor", df_bank$products, ignore.case = TRUE)
+
+# Nowa ramka danych na podstawie
 ```
 
 
