@@ -264,11 +264,11 @@ df_bank = readRDS("bank_register.rds")
 Przekształcenia danych:
 ```{r}
 # Zmiana formatu daty
-df_bank$date = as.Date(df_bank$date, format = "%b %d, %Y")
+date = as.Date(df_bank$date, format = "%b %d, %Y")
 # Zmiany w kolumnie "income"
-df_bank$income <- sub(".", "", df_bank$income, fixed = TRUE)
-df_bank$income <- sub(",", ".", df_bank$income, fixed = TRUE)
-df_bank$income <- sub("$", "", df_bank$income, fixed = TRUE)
+income <- sub(".", "", df_bank$income, fixed = TRUE)
+income <- sub(",", ".", df_bank$income, fixed = TRUE)
+income <- sub("$", "", df_bank$income, fixed = TRUE)
 
 # Rozbicie pierwszej kolumny na listę wektorów dwuelementowych:
 id_split = strsplit(df_bank$id, "_", fixed = TRUE)
@@ -285,8 +285,83 @@ dep = grepl("dep", df_bank$products, ignore.case = TRUE)
 cre = grepl("cre", df_bank$products, ignore.case = TRUE)
 mor = grepl("mor", df_bank$products, ignore.case = TRUE)
 
-# Nowa ramka danych na podstawie
+
 ```
 
+Stworzenie docelowej ramki danych, wydruk poglądowy pierwszych wierszy:
+```{r}
+df_bank_2 = cbind.data.frame(client_id, agreement_id, date, income, sex, 
+                  age, child, dep, cre, mor)
+head(df_bank_2)
+```
 
+# Zadanie 9
+
+Wczytanie danych do ramki danych:
+```{r}
+df_albums = read.csv("albums.csv")
+```
+
+Sprawdzenie braków danych:
+```{r}
+any(is.na(df_albums))
+```
+W danych nie ma braków.
+
+Dodanie kolumny ze średnią ocen z trzech żródeł:
+```{r}
+df_albums$avg_rating = round(rowMeans(df_albums[, c("rolling_stone_critic", 
+                                      "mtv_critic", "music_maniac_critic")]), 1)
+```
+
+Histogram średnich ocen:
+```{r}
+hist(df_albums$avg_rating, col = 'darkgoldenrod', 
+     main = "Histogram średnich ocen", xlab = "Średnia ocen", 
+     ylab = "Liczba albumów", 
+     las = 1)
+grid()
+```
+
+Najwyżej oceniane albumy z podziałem na gatunki:
+```{r}
+top5_bygenre = data.frame()
+for (curr_genre in unique(df_albums$genre)) {
+  filtered_genre = df_albums[df_albums$genre == curr_genre, ]
+  top5_bygenre <- rbind(top5_bygenre, filtered_genre[order(filtered_genre$avg_rating, 
+                decreasing = TRUE), c("artist_id", "album_title", "genre", "avg_rating")][1:5,])
+}
+```
+
+Najwyżej oceniane albumy z każdego roku:
+```{r}
+top5_byyear = data.frame()
+for (curr_year in sort(unique(df_albums$year))) {
+  filtered_year = df_albums[df_albums$year_of_pub == curr_year, ]
+  top5_byyear <- rbind(top5_byyear, filtered_year[order(filtered_year$avg_rating, 
+                decreasing = TRUE), c("artist_id", "album_title", "year_of_pub", "avg_rating")][1:5,])
+}
+```
+
+W powyższych listach należy zwrócić uwagę, że bardziej zasadne byłoby wyznaczenie \
+albumów ze średnią ocen równą 5,0 - ze względu na ilość danych.
+
+
+Najlepiej sprzedające się albumy:
+```{r}
+bestsellers = df_albums[order(df_albums$num_of_sales, decreasing = TRUE), 
+                        c("artist_id", "album_title", "num_of_sales", "avg_rating")][1:10, ]
+print(bestsellers)
+```
+Najlepiej sprzedające się albumy w poszczególnych latach:
+```{r}
+bestsellers_byyear = data.frame()
+for (curr_year in sort(unique(df_albums$year))) {
+  filtered_year = df_albums[df_albums$year_of_pub == curr_year, ]
+  bestsellers_byyear <- rbind(bestsellers_byyear, filtered_year[order(filtered_year$num_of_sales, 
+                decreasing = TRUE), 
+                c("artist_id", "album_title", "year_of_pub", "num_of_sales", "avg_rating")][1,])
+}
+print(bestsellers_byyear)
+```
 
