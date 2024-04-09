@@ -1,0 +1,89 @@
+---
+title: "R2"
+output: html_document
+date: "2024-04-09"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Wczytanie bibliotek:
+```{r, warning=FALSE}
+library(dplyr)
+library(magrittr)
+```
+
+
+#  Zadanie 1 
+
+Wczytanie danych:
+```{r}
+crypto_data = readRDS("crypto.rds")
+```
+
+Wybranie wierszy dotyczących Bitcoina:
+```{r}
+crypto_data[crypto_data$Currency == 'bitcoin' ,] |> head(3)
+```
+Wybranie wierszy dotyczących Bitcoina przu użyciu pakietu dplyr:
+```{r}
+crypto_data |> dplyr::filter(Currency == "bitcoin") |> head(3)
+```
+
+Pozostawienie kolumn Date i Close:
+```{r}
+crypto_data[, c("Date", "Close")] |> head(3)
+```
+Drugi sposób:
+```{r}
+crypto_data %>% dplyr::select(Date, Close) %>% head(3)
+```
+Zmiana typu danych kolumny Date:
+
+```{r}
+crypto_data$Date <- as.Date(crypto_data$Date, format = "%b %d, %Y"); head(crypto_data, 3)
+```
+Stworzenie kolumny Rate (wykorzystano funkcję lag z dplyr):
+
+```{r}
+crypto_data$Rate = crypto_data$Close - lag(crypto_data$Close) / lag(crypto_data$Close)
+```
+
+Drugi sposób:
+
+```{r}
+crypto_data %<>% mutate(Rate = crypto_data$Close - lag(crypto_data$Close) / lag(crypto_data$Close))
+```
+
+Posortowanie danych:
+
+```{r}
+crypto_data %>% arrange(desc(Rate)) %>% head(5)
+```
+Drugi sposób:
+
+```{r}
+crypto_data[order(crypto_data$Rate, decreasing = TRUE), ] %>% head(5)
+```
+
