@@ -1,32 +1,7 @@
 ---
-title: "R2"
+title: "Zadania R, część druga"
 output: html_document
-date: "2024-04-09"
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 Wczytanie bibliotek:
 ```{r, warning=FALSE}
@@ -86,4 +61,90 @@ Drugi sposób:
 ```{r}
 crypto_data[order(crypto_data$Rate, decreasing = TRUE), ] %>% head(5)
 ```
+
+#  Zadanie 2 
+
+Wczytanie danych:
+```{r}
+albums_data = read.csv("albums.csv")
+```
+
+
+Uszeregowanie gatunków wg liczby sprzedanych albumów:
+```{r}
+albums_data %>% group_by(genre) %>% summarise(total_sales = sum(num_of_sales), .groups = "drop") %>%
+  arrange(desc(total_sales))
+```
+
+Liczba albumów wydanych w każdym roku, z podziałem na gatunki:
+```{r}
+albums_data %>% group_by(genre, year_of_pub) %>% tally(name = "no_of_albums") %>% ungroup()
+```
+Średnia liczba utworów na płycie wg gatunku:
+```{r}
+albums_data %>% group_by(genre) %>% summarise(avg_tracks = mean(num_of_tracks), .groups = "drop")
+```
+Analiza ilości utworów na albumach:
+```{r}
+albums_data %>% summarise(avg_tracks = mean(num_of_tracks), 
+                          min_tracks = min(num_of_tracks),
+                          max_tracks = max(num_of_tracks),
+                          median_tracks = median(num_of_tracks))
+```
+Sprzedaż albumów w kolejnych latach:
+```{r}
+albums_data %>% group_by(year_of_pub) %>% summarise(albums_sold = sum(num_of_sales), .groups = "drop")
+```
+Analiza ilości słów w tytułach albumów:
+```{r}
+# Funkcja licząca ilość słów w tytule
+word_count = function(string) {
+  return(length(strsplit(string, " ", fixed = TRUE)[[1]]))
+}
+# Dodanie kolumny z ilością słow
+albums_data %<>% rowwise() %>% mutate(words_in_title = word_count(album_title))
+```
+Średnia ilośc słów tytule albumu: `r mean(albums_data$words_in_title)`
+
+#  Zadanie 3
+
+Wczytanie danych:
+```{r}
+suicide_data = readRDS("suicides.rds")
+```
+
+Znalezienie pięciu krajów, w których na przestrzeni lat 1985 – 2016 popełniono 
+najwięcej samobójstw na 100 000 mieszkańców:
+```{r}
+suicide_data %>% group_by(country) %>% summarise(total_suicides_per100k = sum(suicides.100k.pop)) %>% 
+  arrange(desc(total_suicides_per100k)) %>% head(5) 
+```
+Znalezienie pięciu krajów, w których na przestrzeni lat 1985 – 2016 popełniono 
+najmniej samobójstw na 100 000 mieszkańców:
+```{r}
+suicide_data %>% group_by(country) %>% summarise(total_suicides_per100k = sum(suicides.100k.pop)) %>% 
+  arrange(desc(total_suicides_per100k)) %>% tail(5) 
+```
+Drugi sposób:
+```{r}
+aggregate(suicides.100k.pop ~ country, data = suicide_data, FUN = sum) -> top5_suicides
+top5_suicides <- top5_suicides[order(top5_suicides$suicides.100k.pop, decreasing = T), ]
+   head(top5_suicides, 5)
+```
+Łączna liczba samobójstw popełnionych w każdym roku na 100 000 mieszkańców:
+```{r}
+suicide_data %>% group_by(year) %>% summarise(total_suicides_per100k = sum(suicides.100k.pop)) %>% 
+  arrange(year) %>% ungroup()
+```
+Łączna liczba samobójstw popełnionych na 100 000 mieszkańców na 
+przestrzeni całej próby w podziale na płeć oraz wiek:
+```{r}
+suicide_data %>% group_by(sex, age) %>% summarise(total_suicides_per100k = sum(suicides.100k.pop), .groups = 'drop')
+```
+Wyznaczenie trzech krajów, w których odnotowano największą 
+liczbę samobójstw w każdym roku:
+```{r}
+suicide_data %>% group_by(country.year) 
+```
+
 

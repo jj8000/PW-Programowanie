@@ -1,4 +1,4 @@
--- -
+---
 title: "Zadania R"
 output: html_document
 ---
@@ -7,26 +7,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
+## R - część pierwsza
 
 #  Zadanie 1 
 
@@ -143,8 +124,6 @@ wig_matrix3 = wig_matrix %*% wig_matrix %*% wig_matrix
 dimnames(wig_matrix3) = c(NULL, NULL)
 print(wig_matrix3)
 ```
-
-# Zadanie 4
 
 # Zadanie 5
 
@@ -360,7 +339,7 @@ for (curr_year in sort(unique(df_albums$year))) {
   filtered_year = df_albums[df_albums$year_of_pub == curr_year, ]
   bestsellers_byyear <- rbind(bestsellers_byyear, filtered_year[order(filtered_year$num_of_sales, 
                 decreasing = TRUE), 
-                c("artist_id", "album_title", "year_of_pub", "num_of_sales", "avg_rating")][1,])
+                c("album_title", "year_of_pub", "num_of_sales")][1,])
 }
 print(bestsellers_byyear)
 ```
