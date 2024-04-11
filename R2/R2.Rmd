@@ -104,7 +104,7 @@ word_count = function(string) {
 # Dodanie kolumny z ilością słow
 albums_data %<>% rowwise() %>% mutate(words_in_title = word_count(album_title))
 ```
-Średnia ilośc słów tytule albumu: `r mean(albums_data$words_in_title)`
+Średnia ilośc słów w tytule albumu: `r mean(albums_data$words_in_title)`
 
 #  Zadanie 3
 
@@ -144,7 +144,64 @@ suicide_data %>% group_by(sex, age) %>% summarise(total_suicides_per100k = sum(s
 Wyznaczenie trzech krajów, w których odnotowano największą 
 liczbę samobójstw w każdym roku:
 ```{r}
-suicide_data %>% group_by(country.year) 
+suicide_data %>% group_by(country, year) %>% summarise(no_of_suicides = sum(suicides_no), .groups = 'drop') %>% 
+  arrange(year, desc(no_of_suicides)) %>% group_by(year) %>% slice_head(n = 3) %>% ungroup()
+```
+Znalezienie krajów, w których nastąpiła największa / najmniejsza zmiana pomiędzy 
+liczbą samobójstw na 100k mieszkańców w najgorszym roku (najwięcej 
+samobójstw) i najlepszym roku (najmniej samobójstw):
+
+```{r}
+suicide_data %>% group_by(country) %>% 
+  summarise(suicides_per_100k_year_diff = max(suicides.100k.pop) - min(suicides.100k.pop)) %>% 
+  filter(suicides_per_100k_year_diff %in% c(max(suicides_per_100k_year_diff), min(suicides_per_100k_year_diff)))
+```
+#  Zadanie 4 
+
+Wczytanie danych:
+```{r}
+free_apps = readRDS("gapps/free_apps.rds")
+paid_apps = readRDS("gapps/paid_apps.rds")
+norat_apps = readRDS("gapps/norat_apps.rds")
+```
+
+Połączenie danych i zapis do pliku:
+```{r}
+combined_apps = bind_rows(free_apps, paid_apps, norat_apps)
+write.csv(combined_apps, "combined_apps.csv", row.names = FALSE)
+```
+
+#  Zadanie 5 
+
+Wczytanie danych:
+```{r}
+movies = readRDS("movies/movies.rds")
+ratings = readRDS("movies/ratings.rds")
+tags = readRDS("movies/tags.rds")
+```
+
+Wyznaczenie średnich ocen filmów oraz ilości ocen i dodanie do tabeli "movies":
+```{r}
+ratings %>% group_by(movieId) %>% summarise(avg_rating = mean(rating), no_of_ratings = n()) %>% 
+  right_join(movies, by = "movieId") -> movies2
+```
+
+Dołączenie czasu dodania ostatniego tagu dla każdego filmu:
+```{r}
+tags %>% group_by(movieId) %>% summarise(latest_tag_ts = max(timestamp)) %>% 
+  right_join(movies2, by = "movieId") -> movies2
+```
+
+Agregacja tagów i dołączenie do tabeli movies2:
+```{r}
+tags %>% group_by(movieId) %>% summarise(all_tags = paste(tag, collapse = ", ")) %>% 
+  right_join(movies2, by = "movieId") -> movies2
+```
+
+Umieszczenie nowych kolumn na końcu i wyświetlenie pierwszych wierszy:
+```{r}
+relocate(movies2, 2:5, .after = genres) -> movies2
+head(movies2, 5)
 ```
 
 
